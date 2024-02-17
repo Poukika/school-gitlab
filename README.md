@@ -1,4 +1,4 @@
-# PROJET SCHOOL-GITLAB
+# PROJET GITLAB DATASCIENTEST
 
 
 # Microservices, API Gateway, Authentification avec FastAPI
@@ -48,6 +48,14 @@
   ```
 - Des essais similaires peuvent également être effectués avec l'utilisateur par défaut pour créer et afficher les commandes
 
+# Variables d'environnement
+
+- CI_REGISTRY_USER
+- CI_REGISTRY_PASSWORD
+- $CI_ARTIFACT_REPO_NAME
+- $CI_API_NAME_USERS
+- $CI_API_NAME_ORDERS
+- $CI_API_NAME_GATEWAY
 
 ##Diagramme
 ![ScreenShot](https://github.com/DataScientest/gitlab_devops_exams/blob/main/diagram.png)
