@@ -1,4 +1,4 @@
-# PROJET GITLAB DATASCIENTEST
+# PROJET SCHOOL-GITLAB
 
 
 # Microservices, API Gateway, Authentification avec FastAPI

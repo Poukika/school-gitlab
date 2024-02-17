@@ -1,0 +1,110 @@
+stages:
+  - build
+  - push
+  - deploy_dev
+  - stop_dev
+  - deploy_qa
+  - qa
+  - stop_qa
+  - deploy_staging
+  - stop_staging
+  - deploy_prod
+  - stop_prod
+
+build:
+  stage: build
+  script:
+    - sudo docker build -t pouki/k-users:$CI_COMMIT_SHORT_SHA -f ./users/Dockerfile .
+    - sudo docker build -t pouki/k-orders:$CI_COMMIT_SHORT_SHA -f ./orders/Dockerfile .
+    - sudo docker build -t pouki/k-api-gateway:$CI_COMMIT_SHORT_SHA -f ./gateway/Dockerfile .
+
+push:
+  stage: push
+  before_script:
+    - sudo docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
+  script:
+    - sudo docker push "pouki/k-api-gateway:$CI_COMMIT_SHORT_SHA"
+    - sudo docker push "pouki/k-users:$CI_COMMIT_SHORT_SHA"
+    - sudo docker push "pouki/k-orders:$CI_COMMIT_SHORT_SHA"
+
+deploy_dev:
+  environment:
+    name: dev
+  stage: deploy_dev
+  variables:
+    KUBE_NAMESPACE_dev: dev
+  script:
+    - sudo helm upgrade --install exam-gitlab charts/ --values=charts/values.yaml --namespace $KUBE_NAMESPACE_dev  --set namespace=$KUBE_NAMESPACE_dev --set gateway.tag="$CI_COMMIT_SHORT_SHA" --set users.tag="$CI_COMMIT_SHORT_SHA" --set orders.tag="$CI_COMMIT_SHORT_SHA"
+
+stop_dev:
+  stage: deploy_dev
+  variables:
+    KUBE_NAMESPACE_dev: dev
+  when: manual
+  environment:
+    name: dev
+    action: stop
+  script:
+    - sudo helm uninstall exam-gitlab -n $KUBE_NAMESPACE_dev
+
+deploy_qa:
+  environment:
+    name: qa
+  stage: deploy_qa
+  variables:
+    KUBE_NAMESPACE_qa: qa
+  script:
+    - sudo helm upgrade --install exam-gitlab charts/ --values=charts/values.yaml --namespace $KUBE_NAMESPACE_qa  --set namespace=$KUBE_NAMESPACE_qa --set gateway.tag="$CI_COMMIT_SHORT_SHA" --set users.tag="$CI_COMMIT_SHORT_SHA" --set orders.tag="$CI_COMMIT_SHORT_SHA"
+    - sudo kubectl exec -it users-app -n qa -- python3 -m unittest authtest
+
+stop_qa:
+  stage: deploy_qa
+  variables:
+    KUBE_NAMESPACE_qa: qa
+  when: manual
+  environment:
+    name: qa
+    action: stop
+  script:
+    - sudo helm uninstall exam-gitlab -n $KUBE_NAMESPACE_qa
+
+deploy_staging:
+  environment:
+    name: staging
+  stage: deploy_staging
+  variables:
+    KUBE_NAMESPACE_staging: staging
+  script:
+    - sudo helm upgrade --install exam-gitlab charts/ --values=charts/values.yaml --namespace $KUBE_NAMESPACE_staging --set namespace=$KUBE_NAMESPACE_staging  --set gateway.tag="$CI_COMMIT_SHORT_SHA" --set users.tag="$CI_COMMIT_SHORT_SHA" --set orders.tag="$CI_COMMIT_SHORT_SHA"
+
+stop_staging:
+  stage: deploy_staging
+  variables:
+    KUBE_NAMESPACE_staging: staging
+  when: manual
+  environment:
+    name: staging
+    action: stop
+  script:
+    - sudo helm uninstall exam-gitlab -n $KUBE_NAMESPACE_staging
+
+deploy_prod:
+  environment:
+    name: prod
+  stage: deploy_prod
+  when: manual
+  variables:
+    KUBE_NAMESPACE_prod: prod
+  script:
+    - sudo helm upgrade --install exam-gitlab charts/ --values=charts/values.yaml --namespace $KUBE_NAMESPACE_prod --set namespace=$KUBE_NAMESPACE_prod --set gateway.tag="$CI_COMMIT_SHORT_SHA" --set users.tag="$CI_COMMIT_SHORT_SHA" --set orders.tag="$CI_COMMIT_SHORT_SHA"
+
+stop_prod:
+  stage: deploy_prod
+  variables:
+    KUBE_NAMESPACE_prod: prod
+  when: manual
+  environment:
+    name: prod
+    action: stop
+  script:
+    - sudo helm uninstall exam-gitlab -n $KUBE_NAMESPACE_prod
