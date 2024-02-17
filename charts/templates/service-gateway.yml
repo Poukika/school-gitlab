@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-{{ .Values.namespace }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    name: gateway-{{ .Values.namespace }}
+spec:
+  selector:
+    app: gateway-app
+  type: NodePort
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8001
+      targetPort: 8000
+

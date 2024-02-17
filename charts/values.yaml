@@ -1,0 +1,15 @@
+namespace: ""
+
+configmap:
+  users_service_url: http://users:8000
+  orders_service_url: http://orders:8000
+
+gateway:
+  image: pouki/k-api-gateway
+  tag: ""
+orders:
+  image: pouki/k-orders
+  tag: ""
+users:
+  image: pouki/k-users
+  tag: ""

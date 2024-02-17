@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: uri-apis-{{ .Values.namespace }}
+  labels:
+    app: uri-apisi-{{ .Values.namespace }}
+  namespace: {{ .Values.namespace }}
+data:
+  USERS_SERVICE_URL: "{{ .Values.configmap.users_service_url }}"
+  ORDERS_SERVICE_URL: "{{ .Values.configmap.orders_service_url }}"
+
+
+
+

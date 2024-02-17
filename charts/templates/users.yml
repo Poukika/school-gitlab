@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: users-app
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: users-app-{{ .Values.namespace }}
+spec:
+  containers:
+    - name: users-app
+      image: {{ .Values.users.image }}:{{ .Values.users.tag }}
+      imagePullPolicy: IfNotPresent
+      command: [ "/bin/sh" ]
+      args: [ "-c", "uvicorn main:app --reload --host 0.0.0.0" ]
+      ports:
+        - containerPort: 8000
+      env:
+        - name: USERS_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: uri-apis-{{ .Values.namespace }}
+              key: USERS_SERVICE_URL
+        - name: ORDERS_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: uri-apis-{{ .Values.namespace }}
+              key: ORDERS_SERVICE_URL
+

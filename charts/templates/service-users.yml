@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: users-{{ .Values.namespace }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    name: users-{{ .Values.namespace }}
+spec:
+  selector:
+    app: users-app
+  type: ClusterIP
+  ports:
+    - name: users
+      protocol: TCP
+      port: 8000
+      targetPort: 8000
+
+
